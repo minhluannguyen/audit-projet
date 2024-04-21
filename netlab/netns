@@ -1,0 +1,6 @@
+#!/bin/bash
+cp ~/.bashrc /tmp/temp.bashrc
+echo "PS1=\"\$PS1[$1] \"" >> /tmp/temp.bashrc
+#sudo ip netns exec $1 sudo -u $USER bash -c "ip a | grep $1" && 
+#sudo -C64 ip netns exec $1 sudo -C64 -u $USER bash --rcfile <(cat ~/.bashrc; echo PS1=$1)
+sudo ip netns exec $1 sudo -u $USER -- bash --rcfile /tmp/temp.bashrc

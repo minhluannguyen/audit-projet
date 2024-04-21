@@ -1,0 +1,123 @@
+digraph G { 
+    label = "Net Lab";
+    labelloc = top;
+ 
+    edge [dir=both];
+subgraph cluster_0 {
+                node [shape=none];
+                style=filled;
+                color=lightgrey;
+		label = < <FONT POINT-SIZE="14"> <B> h1 </B> </FONT> >;
+	
+        "h1-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h1-eth0</b></td></tr>
+                <tr><td bgcolor="white" align="left">IP: 192.168.10.1/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_1 {
+                node [shape=none];
+                style=filled;
+                color=lightgrey;
+		label = < <FONT POINT-SIZE="14"> <B> h2 </B> </FONT> >;
+	
+        "h2-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h2-eth0</b></td></tr>
+                <tr><td bgcolor="white" align="left">IP: 192.168.20.1/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_2 {
+                node [shape=none];
+                style=filled;
+                color=lightgrey;
+		label = < <FONT POINT-SIZE="14"> <B> h3 </B> </FONT> >;
+	
+        "h3-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>h3-eth0</b></td></tr>
+                <tr><td bgcolor="white" align="left">IP: 192.168.10.3/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_3 {
+                node [shape=none];
+                style=filled;
+                color=lightgrey;
+		label = < <FONT POINT-SIZE="14"> <B> r1 </B> </FONT> >;
+	
+        "r1-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r1-eth0</b></td></tr>
+                <tr><td bgcolor="white" align="left">IP: 192.168.10.254/24</td></tr>
+            </table>
+        >];
+        "r1-eth1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r1-eth1</b></td></tr>
+                <tr><td bgcolor="white" align="left">IP: 10.0.0.1/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_4 {
+                node [shape=none];
+                style=filled;
+                color=lightgrey;
+		label = < <FONT POINT-SIZE="14"> <B> r2 </B> </FONT> >;
+	
+        "r2-eth0" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r2-eth0</b></td></tr>
+                <tr><td bgcolor="white" align="left">IP: 192.168.20.254/24</td></tr>
+            </table>
+        >];
+        "r2-eth1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td bgcolor="lightblue"><b>r2-eth1</b></td></tr>
+                <tr><td bgcolor="white" align="left">IP: 10.0.0.2/24</td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_5 {
+        node [shape=none];
+        color = none;
+        label="" ;
+	
+        "internet" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td width="200px" bgcolor="orange"><b>internet</b></td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_6 {
+        node [shape=none];
+        color = none;
+        label="" ;
+	
+        "s1" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td width="200px" bgcolor="orange"><b>s1</b></td></tr>
+            </table>
+        >];
+	}
+subgraph cluster_7 {
+        node [shape=none];
+        color = none;
+        label="" ;
+	
+        "s2" [label=<
+            <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
+                <tr><td width="200px" bgcolor="orange"><b>s2</b></td></tr>
+            </table>
+        >];
+	}
+ "s1"->"h1-eth0"; 
+ "s1"->"h3-eth0"; 
+ "s1"->"r1-eth0"; 
+ "s2"->"h2-eth0"; 
+ "s2"->"r2-eth0"; 
+ "internet"->"r1-eth1"; 
+ "internet"->"r2-eth1"; 
+}
