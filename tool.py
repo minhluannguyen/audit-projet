@@ -35,10 +35,11 @@ def remove_interface():
     subprocess.run("ip link del dev " + input_interface, shell=True)
 
 # Wrap the packet in an IP packet and forward it
-def wrap_and_forward(gateway_iface, isSilentMode=False):
+def wrap_and_forward(target_real_addr, gateway_iface, isSilentMode=False):
     def wrap_packet(packet):
         # Get the host's MAC address
         mac_addr = get_if_hwaddr(gateway_iface)
+        src_ip = get_if_addr(gateway_iface)
         if IP in packet:
 
             if not isSilentMode:
@@ -46,9 +47,8 @@ def wrap_and_forward(gateway_iface, isSilentMode=False):
                 print(packet.summary())
 
             # Wrap the packet
-            dst_addr = packet[IP].dst
-            ip_frame = Ether(src=mac_addr, dst=RandMAC()) / IP(dst=dst_addr) / ICMP() / Raw(load=xor_obfuscate(bytes(packet)))
-            
+            ip_frame = Ether(src=mac_addr) / IP(src=src_ip, dst=target_real_addr) / ICMP() / Raw(load=xor_obfuscate(bytes(packet)))
+
             if not isSilentMode:
                 print("Wrapped packet: ")
                 print(ip_frame.summary())
@@ -62,11 +62,11 @@ def wrap_and_forward(gateway_iface, isSilentMode=False):
     return wrap_packet
 
 # Intercept the frame, recover the data and send it to the channel
-def intercept_frame(target_covert_addr, isSilentMode=False):
+def intercept_frame(target_real_addr, target_covert_addr, isSilentMode=False):
     def intercept(frame):
         if IP in frame:
             # Check if the frame is sent to the target's covert address
-            if frame[IP].src == target_covert_addr:
+            if frame[IP].src == target_real_addr:
                 if not isSilentMode:
                     print("Intercepted frame")
                     print(frame.summary())
@@ -89,7 +89,7 @@ def inject_frame(src_addr, dst_addr):
 
     # UDP and TCP testing frames
     udp_frame = Ether(src=RandMAC(), dst=mac_addr) / IP(src=src_addr, dst=dst_addr) / UDP(sport=5678, dport=6789) / "Hello, UDP\n"
-    tcp_frame = Ether(src=RandMAC(), dst=mac_addr) / IP(src=src_addr, dst=dst_addr) / TCP(flags="S", sport=5678, dport=6789) [(b'MSS', 65495), (b'sackOK', b''), (b'Timestamp', (1629777806, 0)), (b'WScale', 7)]
+    #tcp_frame = Ether(src=RandMAC(), dst=mac_addr) / IP(src=src_addr, dst=dst_addr) / TCP(flags="S", sport=5678, dport=6789) [(b'MSS', 65495), (b'sackOK', b''), (b'Timestamp', (1629777806, 0)), (b'WScale', 7)]
 
     # UDP and TCP testing frames for testing with socat
     # udp_frame = Ether(dst="00:00:00:00:00:00", src="00:00:00:00:00:00") / IP(src=src_addr, dst=dst_addr, flags="DF") / UDP(sport=37895, dport=6789) / "Hello, UDP\n"
@@ -97,7 +97,7 @@ def inject_frame(src_addr, dst_addr):
     
     # Send the frames
     sendp(udp_frame, iface=input_interface)
-    sendp(tcp_frame, iface=input_interface)
+    # sendp(tcp_frame, iface=input_interface)
 
 # Send messages in chat mode
 def chat_send_messages(protocol, host_covert_addr, target_covert_addr):
@@ -164,9 +164,9 @@ def main():
         print("Options:")
         print("      setup <network_addr>                                         - Setup the veth interfaces")
         print("      remove                                                       - Remove the veth interfaces")
-        print("      sendmode <network_addr> <gateway_iface>                      - Sniff packets on host, wrap and forward them to the target through the gateway. Should be used with recvmode on the target")
+        print("      sendmode <target_addr> <gateway_iface>                       - Sniff packets on host, wrap and forward them to the target through the gateway. Should be used with recvmode on the target")
         print("      recvmode <gateway_iface> <host_real_addr> <host_covert_addr> - Sniff packets on the target, unwrap and send them to the channel. Should be used with sendmode on the host")
-        print("      inject <src_addr> <dst_addr>                                 - Inject the test packets")
+        print("      inject <src_addr> <dst_addr>                                 - Inject the test packets (Hidden ip addresses)")
         print("      chat <protocol> <gateway_iface> <host_covert_addr> <target_real_addr> <target_covert_addr> - Chat mode using UDP or TCP protocol")
 
     # Setting up the veth interfaces
@@ -195,7 +195,7 @@ def main():
             return
         
         # The target LAN address
-        target_convert_addr = sys.argv[2]
+        target_real_addr = sys.argv[2]
         # The host's gateway interface
         gateway_iface = sys.argv[3]
         
@@ -203,7 +203,7 @@ def main():
 
         # Sniff from channel interface and forward them outside
         print("Waiting for packets...")
-        sniff(iface=[output_interface], prn=wrap_and_forward(gateway_iface))
+        sniff(iface=[output_interface], prn=wrap_and_forward(target_real_addr, gateway_iface))
     
     # Sniff the packets on the target, unwrap and send them to the channel. Should be used with sendmode on the host
     elif mode == "recvmode":
@@ -222,7 +222,7 @@ def main():
 
         # Sniff from the gateway interface and unwrap the packets
         print("Sniffing the packets...")
-        sniff(iface=[gateway_iface, output_interface], prn=intercept_frame(host_covert_addr),
+        sniff(iface=[gateway_iface, output_interface], prn=intercept_frame(host_real_addr, host_covert_addr),
                filter='icmp or (host ' + host_real_addr + ' and udp)')
         
     # Inject test packets
