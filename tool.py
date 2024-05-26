@@ -122,7 +122,7 @@ def inject_frame(src_addr, dst_addr):
     # UDP and TCP testing frames for testing with socat
     # udp_frame = Ether(dst="00:00:00:00:00:00", src="00:00:00:00:00:00") / IP(src=src_addr, dst=dst_addr, flags="DF") / UDP(sport=37895, dport=6789) / "Hello, UDP\n"
     # tcp_frame = Ether(dst="00:00:00:00:00:00", src="00:00:00:00:00:00") / IP(src=src_addr, dst=dst_addr, flags="DF") / TCP(flags="S", sport=5678, dport=6789, options=[('MSS', 65495), ('SAckOK', b''), ('Timestamp', (0, 0)), ('WScale', 7)])    
-    7
+
     # Send the frames
     sendp(udp_frame, iface=input_interface)
     sendp(tcp_frame, iface=input_interface)
