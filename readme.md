@@ -75,7 +75,7 @@ $ python tool.py remove
 $ python tool.py sendmode 1 192.168.20.1 h1-eth0
 ```
 
-- ***recvmode***: Sniff packets on the target, unwrap and send them to the channel. Should be used with *sendmode* on the host.
+- ***recvmode <protected_mode> <gateway_iface> <host_real_addr> <host_covert_addr>***: Sniff packets on the target, unwrap and send them to the channel. Should be used with *sendmode* on the host.
 
 ```sh
 [h2] 
